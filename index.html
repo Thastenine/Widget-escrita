@@ -1,388 +1,283 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Widget Escrita</title>
-<style>
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background: #fafafa;
-    color: #333;
-    padding: 20px;
-  }
-  .container {
-    max-width: 480px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-  }
-  .header-top {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-  #projectName, #themeSelect {
-    flex: 1;
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-    background: #fefefe;
-  }
-  #sessionTitle {
-    width: 100%;
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-    background: #fefefe;
-    margin-bottom: 18px;
-  }
-  /* Ajuste aqui: widgets lado a lado, metade cada um */
-  .widgets {
-    display: flex;
-    gap: 18px;
-    margin-bottom: 16px;
-  }
-  .widget-box {
-    flex: 1 1 0; /* cresce e encolhe igualmente */
-    max-width: 50%;
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-    text-align: center;
-    background-color: var(--bg);
-    color: var(--accent);
-    border: 1.5px solid var(--accent);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .widget-box h3 {
-    margin: 0 0 8px 0;
-    font-weight: 600;
-    font-size: 1rem;
-  }
-  input[type="number"] {
-    width: 100%;
-    padding: 12px;
-    font-size: 1.2rem;
-    border-radius: 8px;
-    border: 1.5px solid var(--accent);
-    text-align: center;
-    color: var(--accent);
-    background: var(--bg);
-    min-width: 6ch;
-  }
-  /* Força o temporizador a não ultrapassar a largura do widget */
-  #timerDisplay {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--accent);
-    margin: 0 auto 12px;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    box-sizing: border-box;
-  }
-  .btns {
-    margin-top: auto;
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 20px; /* <--- Aumentei aqui o espaço abaixo dos botões */
-  }
-  .btns button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    background-color: var(--btn);
-    color: var(--accent);
-    transition: background-color 0.3s ease;
-    flex: 1;
-  }
-  .btns button:hover:not(:disabled) {
-    filter: brightness(0.9);
-  }
-  .btns button:disabled {
-    opacity: 0.6;
-    cursor: default;
-  }
-  .btn-history-toggle {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 10px;
-    border-radius: 14px;
-    background-color: var(--btn);
-    border: none;
-    font-weight: 700;
-    cursor: pointer;
-    color: var(--accent);
-    transition: background-color 0.3s ease;
-  }
-  .btn-history-toggle:hover {
-    filter: brightness(0.9);
-  }
-  .history-container {
-    max-height: 180px;
-    overflow-y: auto;
-    background: var(--bg);
-    border-radius: 14px;
-    border: 1.5px solid var(--accent);
-    padding: 16px;
-    display: none;
-    font-size: 0.9rem;
-    color: var(--accent);
-  }
-  .history-item {
-    border-bottom: 1px solid var(--accent);
-    padding: 8px 0;
-  }
-  .history-item:last-child {
-    border-bottom: none;
-  }
-  .filter-input {
-    width: 100%;
-    padding: 10px 14px;
-    border-radius: 12px;
-    border: 1.5px solid var(--accent);
-    margin-bottom: 10px;
-    color: var(--accent);
-    background: var(--bg);
-    display: none;
-  }
-
-  /* Paletas definidas como variáveis CSS */
-  body.theme-bruma-azul {
-    --bg: #f0f4f8;
-    --btn: #a6bcd0;
-    --accent: #50687e;
-  }
-  body.theme-musgo-palido {
-    --bg: #f5f7f3;
-    --btn: #b3c1aa;
-    --accent: #667a5e;
-  }
-  body.theme-noite-fosca {
-    --bg: #eeeeee;
-    --btn: #c6c6d8;
-    --accent: #7b7c8b;
-  }
-  body.theme-sangue-rosado {
-    --bg: #fff3f3;
-    --btn: #d6a5a5;
-    --accent: #8c5656;
-  }
-  body.theme-vidro-nebuloso {
-    --bg: #f8f9fa;
-    --btn: #cdd6d9;
-    --accent: #8a9aa0;
-  }
-  body.theme-sepia-lunar {
-    --bg: #f8f6f2;
-    --btn: #dacfc2;
-    --accent: #7c6c5b;
-  }
-  body.theme-neon-gelo {
-    --bg: #eef6f8;
-    --btn: #bddfe3;
-    --accent: #78a0a6;
-  }
-  body.theme-ouro-antigo {
-    --bg: #f9f5e9;
-    --btn: #e2cfa9;
-    --accent: #9a8663;
-  }
-  body.theme-lilas-cinzento {
-    --bg: #f4f2f6;
-    --btn: #cfc7d4;
-    --accent: #7e7086;
-  }
-  body.theme-cinzento-botanico {
-    --bg: #f0f4f2;
-    --btn: #b8cfc6;
-    --accent: #5f756e;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Widget de Escrita</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      padding: 30px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    .top-section {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    input[type="text"], select, input[type="number"] {
+      flex: 1;
+      padding: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .session-title {
+      margin-bottom: 12px;
+    }
+    .widgets {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .widget {
+      flex: 1;
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .widget h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+    #timerDisplay {
+      font-size: 24px;
+      margin: 8px 0;
+    }
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .btns button {
+      flex: 1;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .extra-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      gap: 8px;
+    }
+    .extra-buttons button {
+      flex: 1;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: var(--btn);
+      color: var(--accent);
+      transition: background 0.2s ease;
+    }
+    .extra-buttons button:hover {
+      filter: brightness(1.05);
+    }
+    #history {
+      margin-top: 20px;
+      display: none;
+    }
+    #history ul {
+      list-style: none;
+      padding: 0;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    #history li {
+      font-size: 13px;
+      border-bottom: 1px solid #eee;
+      padding: 4px 0;
+    }
+    .theme-Bruma { --bg: #f0f4f8; --btn: #a6bcd0; --accent: #50687e; }
+    .theme-Musgo { --bg: #f5f7f3; --btn: #b3c1aa; --accent: #667a5e; }
+    .theme-Noite { --bg: #eeeeee; --btn: #c6c6d8; --accent: #7b7c8b; }
+    .theme-Sangue { --bg: #fff3f3; --btn: #d6a5a5; --accent: #8c5656; }
+    .theme-Vidro { --bg: #f8f9fa; --btn: #cdd6d9; --accent: #8a9aa0; }
+    .theme-Sepia { --bg: #f8f6f2; --btn: #dacfc2; --accent: #7c6c5b; }
+    .theme-Neon { --bg: #eef6f8; --btn: #bddfe3; --accent: #78a0a6; }
+    .theme-Ouro { --bg: #f9f5e9; --btn: #e2cfa9; --accent: #9a8663; }
+    .theme-Lilas { --bg: #f4f2f6; --btn: #cfc7d4; --accent: #7e7086; }
+    .theme-Botanico { --bg: #f0f4f2; --btn: #b8cfc6; --accent: #5f756e; }
+    .container {
+      background: var(--bg);
+    }
+    .btns button, select {
+      background: var(--btn);
+      color: var(--accent);
+    }
+  </style>
 </head>
-<body class="theme-bruma-azul">
-<div class="container">
-  <div class="header-top">
-    <input id="projectName" type="text" placeholder="Nome do projeto/livro" />
-    <select id="themeSelect" title="Escolha o tema">
-      <option value="theme-bruma-azul">Bruma Azul</option>
-      <option value="theme-musgo-palido">Musgo Pálido</option>
-      <option value="theme-noite-fosca">Noite Fosca</option>
-      <option value="theme-sangue-rosado">Sangue Rosado</option>
-      <option value="theme-vidro-nebuloso">Vidro Nebuloso</option>
-      <option value="theme-sepia-lunar">Sépia Lunar</option>
-      <option value="theme-neon-gelo">Neon Gelo</option>
-      <option value="theme-ouro-antigo">Ouro Antigo</option>
-      <option value="theme-lilas-cinzento">Lilás Cinzento</option>
-      <option value="theme-cinzento-botanico">Cinzento Botânico</option>
-    </select>
-  </div>
-
-  <input id="sessionTitle" type="text" placeholder="Título da sessão (ex: Prólogo 1)" />
-
-  <div class="widgets">
-    <div class="widget-box">
-      <h3>Contador de Palavras</h3>
-      <input id="wordCountInput" type="number" min="0" placeholder="0" />
+<body>
+  <div class="container theme-Bruma">
+    <div class="top-section">
+      <input type="text" id="projectName" placeholder="Nome do Projeto" />
+      <select id="themeSelector">
+        <option value="Bruma">Bruma Azul</option>
+        <option value="Musgo">Musgo Pálido</option>
+        <option value="Noite">Noite Fosca</option>
+        <option value="Sangue">Sangue Rosado</option>
+        <option value="Vidro">Vidro Nebuloso</option>
+        <option value="Sepia">Sépia Lunar</option>
+        <option value="Neon">Neon Gelo</option>
+        <option value="Ouro">Ouro Antigo</option>
+        <option value="Lilas">Lilás Cinzento</option>
+        <option value="Botanico">Cinzento Botânico</option>
+      </select>
     </div>
-    <div class="widget-box">
-      <h3>Temporizador (mm:ss)</h3>
-      <div id="timerDisplay">00:00</div>
+    <input type="text" id="sessionTitle" class="session-title" placeholder="Título da Sessão" />
+    <div class="widgets">
+      <div class="widget">
+        <h3>Contador de Palavras</h3>
+        <input type="number" id="wordCount" min="0" placeholder="0" />
+      </div>
+      <div class="widget">
+        <h3>Temporizador (mm:ss)</h3>
+        <div id="timerDisplay">00:00</div>
+      </div>
+    </div>
+    <div class="btns">
+      <button onclick="startTimer()">Começar</button>
+      <button onclick="stopTimer()">Parar</button>
+      <button onclick="resetTimer()">Resetar</button>
+      <button onclick="saveSession(this)">Salvar Sessão</button>
+    </div>
+    <div class="extra-buttons">
+      <button onclick="toggleHistory()">📜 Histórico</button>
+      <button onclick="exportHistory()">💾 Exportar</button>
+    </div>
+    <div id="history">
+      <ul id="historyList"></ul>
     </div>
   </div>
 
-  <div class="btns">
-    <button id="startBtn">Começar</button>
-    <button id="stopBtn" disabled>Parar</button>
-    <button id="saveBtn" disabled>Salvar</button>
-  </div>
+  <script>
+    let timer;
+    let seconds = 0;
 
-  <button class="btn-history-toggle" id="toggleHistoryBtn">Mostrar Histórico</button>
-  <input id="filterHistoryInput" class="filter-input" type="text" placeholder="Filtrar por título de sessão" />
-
-  <div id="historyContainer" class="history-container"></div>
-</div>
-
-<script>
-  const projectNameInput = document.getElementById('projectName');
-  const sessionTitleInput = document.getElementById('sessionTitle');
-  const wordCountInput = document.getElementById('wordCountInput');
-  const timerDisplay = document.getElementById('timerDisplay');
-  const startBtn = document.getElementById('startBtn');
-  const stopBtn = document.getElementById('stopBtn');
-  const saveBtn = document.getElementById('saveBtn');
-  const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
-  const historyContainer = document.getElementById('historyContainer');
-  const filterHistoryInput = document.getElementById('filterHistoryInput');
-  const themeSelect = document.getElementById('themeSelect');
-
-  let timer = null;
-  let totalSeconds = 0;
-  let historyVisible = false;
-  let historyData = JSON.parse(localStorage.getItem('writingHistory')) || [];
-
-  themeSelect.addEventListener('change', () => {
-    document.body.className = themeSelect.value;
-  });
-
-  function formatTime(seconds) {
-    const m = Math.floor(seconds / 60).toString().padStart(2,'0');
-    const s = (seconds % 60).toString().padStart(2,'0');
-    return `${m}:${s}`;
-  }
-
-  function updateTimer() {
-    timerDisplay.textContent = formatTime(totalSeconds);
-    if(totalSeconds > 0) {
-      saveBtn.disabled = false;
+    function updateTimerDisplay() {
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
     }
-  }
 
-  startBtn.addEventListener('click', () => {
-    if (!timer) {
-      timer = setInterval(() => {
-        totalSeconds++;
-        updateTimer();
-      }, 1000);
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
-      saveBtn.disabled = true;
+    function startTimer() {
+      if (!timer) {
+        timer = setInterval(() => {
+          seconds++;
+          updateTimerDisplay();
+        }, 1000);
+      }
     }
-  });
 
-  stopBtn.addEventListener('click', () => {
-    if (timer) {
+    function stopTimer() {
       clearInterval(timer);
       timer = null;
-      startBtn.disabled = false;
-      stopBtn.disabled = true;
-      saveBtn.disabled = false;
-    }
-  });
-
-  saveBtn.addEventListener('click', () => {
-    const project = projectNameInput.value.trim() || 'Sem nome';
-    const session = sessionTitleInput.value.trim() || 'Sessão sem título';
-    const words = parseInt(wordCountInput.value) || 0;
-    const time = totalSeconds;
-
-    if (words === 0 && time === 0) {
-      alert('Registre palavras escritas ou tempo antes de salvar.');
-      return;
     }
 
-    const entry = {
-      project,
-      session,
-      words,
-      time,
-      date: new Date().toLocaleString()
-    };
-    historyData.unshift(entry);
-    localStorage.setItem('writingHistory', JSON.stringify(historyData));
-    renderHistory();
-    saveBtn.disabled = true;
-    wordCountInput.value = '';
-    totalSeconds = 0;
-    updateTimer();
-  });
-
-  function renderHistory(filter = '') {
-    historyContainer.innerHTML = '';
-    const filtered = historyData.filter(item => item.session.toLowerCase().includes(filter.toLowerCase()));
-    if(filtered.length === 0) {
-      historyContainer.innerHTML = '<p>Nenhum histórico encontrado.</p>';
-      return;
+    function resetTimer() {
+      stopTimer();
+      seconds = 0;
+      updateTimerDisplay();
     }
-    filtered.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'history-item';
-      div.innerHTML = `
-        <strong>${item.session}</strong> (${item.project})<br />
-        Palavras: ${item.words} — Tempo: ${formatTime(item.time)}<br />
-        <small>${item.date}</small>
-      `;
-      historyContainer.appendChild(div);
+
+    function saveSession(button) {
+      const project = document.getElementById('projectName').value.trim();
+      const title = document.getElementById('sessionTitle').value;
+      const words = document.getElementById('wordCount').value;
+      const time = document.getElementById('timerDisplay').textContent;
+      if (!project) return;
+      const entry = `${new Date().toLocaleDateString()} - ${title || 'Sessão'} - ${time} - ${words} palavras`;
+      const history = JSON.parse(localStorage.getItem('history_' + project)) || [];
+      history.push(entry);
+      localStorage.setItem('history_' + project, JSON.stringify(history));
+      seconds = 0;
+      updateTimerDisplay();
+      document.getElementById('wordCount').value = '';
+      loadHistory();
+      if (button) {
+        const originalText = button.textContent;
+        button.textContent = 'Salvo!';
+        setTimeout(() => button.textContent = originalText, 1500);
+      }
+    }
+
+    function toggleHistory() {
+      const el = document.getElementById('history');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function loadHistory() {
+      const project = document.getElementById('projectName').value.trim();
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+      if (!project) return;
+      const history = JSON.parse(localStorage.getItem('history_' + project)) || [];
+      history.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        list.appendChild(li);
+      });
+    }
+
+    function exportHistory() {
+      const project = document.getElementById('projectName').value.trim();
+      const history = JSON.parse(localStorage.getItem('history_' + project)) || [];
+      const blob = new Blob([history.join('\n')], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${project || 'historico'}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('projectName').addEventListener('input', () => {
+      loadHistory();
+      localStorage.setItem('lastProject', document.getElementById('projectName').value);
     });
-  }
 
-  toggleHistoryBtn.addEventListener('click', () => {
-    historyVisible = !historyVisible;
-    if(historyVisible) {
-      historyContainer.style.display = 'block';
-      toggleHistoryBtn.textContent = 'Esconder Histórico';
-      filterHistoryInput.style.display = 'block';
-      renderHistory();
-    } else {
-      historyContainer.style.display = 'none';
-      toggleHistoryBtn.textContent = 'Mostrar Histórico';
-      filterHistoryInput.style.display = 'none';
-    }
-  });
+    document.getElementById('themeSelector').addEventListener('change', (e) => {
+      const theme = e.target.value;
+      document.querySelector('.container').className = 'container theme-' + theme;
+      localStorage.setItem('lastTheme', theme);
+    });
 
-  filterHistoryInput.addEventListener('input', () => {
-    renderHistory(filterHistoryInput.value);
-  });
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveSession();
+      }
+    });
 
-  updateTimer();
-  renderHistory();
-</script>
+    window.addEventListener('load', () => {
+      const lastProject = localStorage.getItem('lastProject') || '';
+      const lastTheme = localStorage.getItem('lastTheme') || 'Bruma';
+      document.getElementById('projectName').value = lastProject;
+      document.querySelector('.container').className = 'container theme-' + lastTheme;
+      document.getElementById('themeSelector').value = lastTheme;
+      loadHistory();
+    });
+  </script>
 </body>
 </html>
-
