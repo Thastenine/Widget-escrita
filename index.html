@@ -1,317 +1,388 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Widget de Escrita Avançado</title>
-  <style>
-    body {
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      background: #f5f5f5;
-      color: #333;
-      padding: 30px;
-    }
-    .container {
-      max-width: 650px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .project label,
-    .sessionName label {
-      font-size: 16px;
-      display: block;
-      margin-top: 10px;
-    }
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    .widgets {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    .widget {
-      flex: 1;
-      background: #fafafa;
-      padding: 16px;
-      border-radius: 6px;
-      border: 1px solid #eee;
-      min-width: 280px;
-      box-sizing: border-box;
-    }
-    .widget h2 {
-      margin-top: 0;
-    }
-    #timerDisplay {
-      font-size: 36px;
-      text-align: center;
-      margin: 16px 0;
-    }
-    .btns button {
-      margin: 0 4px 8px 4px;
-      padding: 6px 12px;
-      border-radius: 5px;
-      border: none;
-      background: #2f80ed;
-      color: white;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s;
-    }
-    .btns button:hover {
-      background: #1c60c8;
-    }
-    #toggleHistoryBtn {
-      margin-top: 10px;
-      background: #4caf50;
-    }
-    #toggleHistoryBtn:hover {
-      background: #3a8e3a;
-    }
-    ul {
-      list-style: none;
-      padding-left: 0;
-      max-height: 220px;
-      overflow-y: auto;
-      margin-top: 10px;
-      border-top: 1px solid #ccc;
-    }
-    ul li {
-      padding: 6px 8px;
-      border-bottom: 1px solid #eee;
-      font-size: 14px;
-      line-height: 1.3em;
-    }
-    .no-history {
-      font-style: italic;
-      color: #888;
-      padding: 8px;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Time & Words Tracker</h1>
-    <div class="project">
-      <label for="projectName">Projeto / Livro:</label>
-      <input type="text" id="projectName" placeholder="Ex: Livro A" />
-    </div>
-    <div class="widgets">
-      <div class="widget timer">
-        <h2>Cronômetro</h2>
-        <div id="timerDisplay">00:00</div>
-        <div class="btns">
-          <button id="startBtn">Começar</button>
-          <button id="stopBtn">Parar</button>
-          <button id="resetBtn">Resetar</button>
-        </div>
-        <div class="sessionName">
-          <label for="sessionNameTimer">Nome da sessão (tempo):</label>
-          <input type="text" id="sessionNameTimer" placeholder="Ex: Prólogo 1" />
-        </div>
-      </div>
-      <div class="widget words">
-        <h2>Contador de Palavras</h2>
-        <label for="wordCount">Total de palavras escritas:</label>
-        <input type="number" id="wordCount" placeholder="Ex: 1200" min="0" />
-        <div class="sessionName">
-          <label for="sessionNameWords">Nome da sessão (palavras):</label>
-          <input type="text" id="sessionNameWords" placeholder="Ex: Prólogo 1" />
-        </div>
-        <button id="addWordsBtn">Adicionar sessão</button>
-      </div>
-    </div>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Widget Escrita</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #fafafa;
+    color: #333;
+    padding: 20px;
+  }
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  #projectName, #themeSelect {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    background: #fefefe;
+  }
+  #sessionTitle {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    background: #fefefe;
+    margin-bottom: 18px;
+  }
+  /* Ajuste aqui: widgets lado a lado, metade cada um */
+  .widgets {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  .widget-box {
+    flex: 1 1 0; /* cresce e encolhe igualmente */
+    max-width: 50%;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    text-align: center;
+    background-color: var(--bg);
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .widget-box h3 {
+    margin: 0 0 8px 0;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--accent);
+    text-align: center;
+    color: var(--accent);
+    background: var(--bg);
+    min-width: 6ch;
+  }
+  /* Força o temporizador a não ultrapassar a largura do widget */
+  #timerDisplay {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0 auto 12px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+  }
+  .btns {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px; /* <--- Aumentei aqui o espaço abaixo dos botões */
+  }
+  .btns button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background-color: var(--btn);
+    color: var(--accent);
+    transition: background-color 0.3s ease;
+    flex: 1;
+  }
+  .btns button:hover:not(:disabled) {
+    filter: brightness(0.9);
+  }
+  .btns button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .btn-history-toggle {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 14px;
+    background-color: var(--btn);
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--accent);
+    transition: background-color 0.3s ease;
+  }
+  .btn-history-toggle:hover {
+    filter: brightness(0.9);
+  }
+  .history-container {
+    max-height: 180px;
+    overflow-y: auto;
+    background: var(--bg);
+    border-radius: 14px;
+    border: 1.5px solid var(--accent);
+    padding: 16px;
+    display: none;
+    font-size: 0.9rem;
+    color: var(--accent);
+  }
+  .history-item {
+    border-bottom: 1px solid var(--accent);
+    padding: 8px 0;
+  }
+  .history-item:last-child {
+    border-bottom: none;
+  }
+  .filter-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--accent);
+    margin-bottom: 10px;
+    color: var(--accent);
+    background: var(--bg);
+    display: none;
+  }
 
-    <button id="toggleHistoryBtn">Mostrar histórico do projeto</button>
-    <ul id="historyList" style="display:none;"></ul>
+  /* Paletas definidas como variáveis CSS */
+  body.theme-bruma-azul {
+    --bg: #f0f4f8;
+    --btn: #a6bcd0;
+    --accent: #50687e;
+  }
+  body.theme-musgo-palido {
+    --bg: #f5f7f3;
+    --btn: #b3c1aa;
+    --accent: #667a5e;
+  }
+  body.theme-noite-fosca {
+    --bg: #eeeeee;
+    --btn: #c6c6d8;
+    --accent: #7b7c8b;
+  }
+  body.theme-sangue-rosado {
+    --bg: #fff3f3;
+    --btn: #d6a5a5;
+    --accent: #8c5656;
+  }
+  body.theme-vidro-nebuloso {
+    --bg: #f8f9fa;
+    --btn: #cdd6d9;
+    --accent: #8a9aa0;
+  }
+  body.theme-sepia-lunar {
+    --bg: #f8f6f2;
+    --btn: #dacfc2;
+    --accent: #7c6c5b;
+  }
+  body.theme-neon-gelo {
+    --bg: #eef6f8;
+    --btn: #bddfe3;
+    --accent: #78a0a6;
+  }
+  body.theme-ouro-antigo {
+    --bg: #f9f5e9;
+    --btn: #e2cfa9;
+    --accent: #9a8663;
+  }
+  body.theme-lilas-cinzento {
+    --bg: #f4f2f6;
+    --btn: #cfc7d4;
+    --accent: #7e7086;
+  }
+  body.theme-cinzento-botanico {
+    --bg: #f0f4f2;
+    --btn: #b8cfc6;
+    --accent: #5f756e;
+  }
+</style>
+</head>
+<body class="theme-bruma-azul">
+<div class="container">
+  <div class="header-top">
+    <input id="projectName" type="text" placeholder="Nome do projeto/livro" />
+    <select id="themeSelect" title="Escolha o tema">
+      <option value="theme-bruma-azul">Bruma Azul</option>
+      <option value="theme-musgo-palido">Musgo Pálido</option>
+      <option value="theme-noite-fosca">Noite Fosca</option>
+      <option value="theme-sangue-rosado">Sangue Rosado</option>
+      <option value="theme-vidro-nebuloso">Vidro Nebuloso</option>
+      <option value="theme-sepia-lunar">Sépia Lunar</option>
+      <option value="theme-neon-gelo">Neon Gelo</option>
+      <option value="theme-ouro-antigo">Ouro Antigo</option>
+      <option value="theme-lilas-cinzento">Lilás Cinzento</option>
+      <option value="theme-cinzento-botanico">Cinzento Botânico</option>
+    </select>
   </div>
 
-  <script>
-    // Elementos
-    const projectInput = document.getElementById('projectName');
+  <input id="sessionTitle" type="text" placeholder="Título da sessão (ex: Prólogo 1)" />
 
-    // Timer
-    const timerDisplay = document.getElementById('timerDisplay');
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const sessionNameTimerInput = document.getElementById('sessionNameTimer');
+  <div class="widgets">
+    <div class="widget-box">
+      <h3>Contador de Palavras</h3>
+      <input id="wordCountInput" type="number" min="0" placeholder="0" />
+    </div>
+    <div class="widget-box">
+      <h3>Temporizador (mm:ss)</h3>
+      <div id="timerDisplay">00:00</div>
+    </div>
+  </div>
 
-    // Words
-    const wordCountInput = document.getElementById('wordCount');
-    const sessionNameWordsInput = document.getElementById('sessionNameWords');
-    const addWordsBtn = document.getElementById('addWordsBtn');
+  <div class="btns">
+    <button id="startBtn">Começar</button>
+    <button id="stopBtn" disabled>Parar</button>
+    <button id="saveBtn" disabled>Salvar</button>
+  </div>
 
-    // History
-    const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
-    const historyList = document.getElementById('historyList');
+  <button class="btn-history-toggle" id="toggleHistoryBtn">Mostrar Histórico</button>
+  <input id="filterHistoryInput" class="filter-input" type="text" placeholder="Filtrar por título de sessão" />
 
-    // Variáveis timer
-    let seconds = 0;
-    let interval = null;
+  <div id="historyContainer" class="history-container"></div>
+</div>
 
-    // Atualiza o display do timer
-    function updateTimer() {
-      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-      const s = String(seconds % 60).padStart(2, '0');
-      timerDisplay.textContent = `${m}:${s}`;
+<script>
+  const projectNameInput = document.getElementById('projectName');
+  const sessionTitleInput = document.getElementById('sessionTitle');
+  const wordCountInput = document.getElementById('wordCountInput');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
+  const historyContainer = document.getElementById('historyContainer');
+  const filterHistoryInput = document.getElementById('filterHistoryInput');
+  const themeSelect = document.getElementById('themeSelect');
+
+  let timer = null;
+  let totalSeconds = 0;
+  let historyVisible = false;
+  let historyData = JSON.parse(localStorage.getItem('writingHistory')) || [];
+
+  themeSelect.addEventListener('change', () => {
+    document.body.className = themeSelect.value;
+  });
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60).toString().padStart(2,'0');
+    const s = (seconds % 60).toString().padStart(2,'0');
+    return `${m}:${s}`;
+  }
+
+  function updateTimer() {
+    timerDisplay.textContent = formatTime(totalSeconds);
+    if(totalSeconds > 0) {
+      saveBtn.disabled = false;
     }
+  }
 
-    // Funções timer
-    function startTimer() {
-      if (interval) return;
-      interval = setInterval(() => {
-        seconds++;
+  startBtn.addEventListener('click', () => {
+    if (!timer) {
+      timer = setInterval(() => {
+        totalSeconds++;
         updateTimer();
       }, 1000);
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      saveBtn.disabled = true;
+    }
+  });
+
+  stopBtn.addEventListener('click', () => {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      saveBtn.disabled = false;
+    }
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const project = projectNameInput.value.trim() || 'Sem nome';
+    const session = sessionTitleInput.value.trim() || 'Sessão sem título';
+    const words = parseInt(wordCountInput.value) || 0;
+    const time = totalSeconds;
+
+    if (words === 0 && time === 0) {
+      alert('Registre palavras escritas ou tempo antes de salvar.');
+      return;
     }
 
-    function stopTimer() {
-      if (!interval) return;
-      clearInterval(interval);
-      interval = null;
-      saveTimerSession();
-    }
-
-    function resetTimer() {
-      stopTimer();
-      seconds = 0;
-      updateTimer();
-    }
-
-    // Salvar sessão de tempo
-    function saveTimerSession() {
-      const proj = projectInput.value.trim();
-      const sessName = sessionNameTimerInput.value.trim();
-      if (!proj) {
-        alert('Por favor, informe o nome do projeto/livro antes de salvar a sessão de tempo.');
-        return;
-      }
-      if (!sessName) {
-        alert('Por favor, informe o nome da sessão de tempo.');
-        return;
-      }
-      const minutos = (seconds / 60).toFixed(2);
-      const dataHora = new Date().toLocaleString();
-      const sess = {
-        projeto: proj,
-        tipo: 'tempo',
-        nomeSessao: sessName,
-        valor: minutos,
-        data: dataHora
-      };
-      saveSession(sess);
-      resetTimer();
-      sessionNameTimerInput.value = '';
-      if (historyList.style.display === 'block') renderHistory();
-    }
-
-    // Salvar sessão de palavras
-    function saveWordSession() {
-      const proj = projectInput.value.trim();
-      const sessName = sessionNameWordsInput.value.trim();
-      const palavras = parseInt(wordCountInput.value);
-      if (!proj) {
-        alert('Por favor, informe o nome do projeto/livro antes de salvar a sessão de palavras.');
-        return;
-      }
-      if (!sessName) {
-        alert('Por favor, informe o nome da sessão de palavras.');
-        return;
-      }
-      if (isNaN(palavras) || palavras < 0) {
-        alert('Por favor, informe um número válido de palavras.');
-        return;
-      }
-      const dataHora = new Date().toLocaleString();
-      const sess = {
-        projeto: proj,
-        tipo: 'palavras',
-        nomeSessao: sessName,
-        valor: palavras,
-        data: dataHora
-      };
-      saveSession(sess);
-      wordCountInput.value = '';
-      sessionNameWordsInput.value = '';
-      if (historyList.style.display === 'block') renderHistory();
-    }
-
-    // Salvar no localStorage
-    function saveSession(session) {
-      let todasSessoes = JSON.parse(localStorage.getItem('sessoes') || '[]');
-      todasSessoes.push(session);
-      localStorage.setItem('sessoes', JSON.stringify(todasSessoes));
-    }
-
-    // Filtrar e mostrar histórico do projeto atual
-    function renderHistory() {
-      const proj = projectInput.value.trim();
-      if (!proj) {
-        historyList.innerHTML = '<li class="no-history">Informe o nome do projeto para ver o histórico.</li>';
-        return;
-      }
-      let todasSessoes = JSON.parse(localStorage.getItem('sessoes') || '[]');
-      let sessoesDoProjeto = todasSessoes.filter(s => s.projeto === proj);
-      if (sessoesDoProjeto.length === 0) {
-        historyList.innerHTML = '<li class="no-history">Nenhuma sessão salva para este projeto.</li>';
-        return;
-      }
-      historyList.innerHTML = '';
-      // Mostrar sessões mais recentes primeiro
-      sessoesDoProjeto.reverse().forEach(sess => {
-        let itemText = `[${sess.data}] ${sess.nomeSessao} — `;
-        if (sess.tipo === 'tempo') {
-          itemText += `Tempo: ${sess.valor} minutos`;
-        } else {
-          itemText += `Palavras: ${sess.valor}`;
-        }
-        const li = document.createElement('li');
-        li.textContent = itemText;
-        historyList.appendChild(li);
-      });
-    }
-
-    // Toggle histórico
-    toggleHistoryBtn.addEventListener('click', () => {
-      if (historyList.style.display === 'none') {
-        renderHistory();
-        historyList.style.display = 'block';
-        toggleHistoryBtn.textContent = 'Esconder histórico do projeto';
-      } else {
-        historyList.style.display = 'none';
-        toggleHistoryBtn.textContent = 'Mostrar histórico do projeto';
-      }
-    });
-
-    // Eventos dos botões timer
-    startBtn.addEventListener('click', startTimer);
-    stopBtn.addEventListener('click', stopTimer);
-    resetBtn.addEventListener('click', resetTimer);
-
-    // Evento do botão palavras
-    addWordsBtn.addEventListener('click', saveWordSession);
-
-    // Atualiza histórico ao mudar o nome do projeto
-    projectInput.addEventListener('input', () => {
-      if (historyList.style.display === 'block') {
-        renderHistory();
-      }
-    });
-
-    // Inicia display timer zerado
+    const entry = {
+      project,
+      session,
+      words,
+      time,
+      date: new Date().toLocaleString()
+    };
+    historyData.unshift(entry);
+    localStorage.setItem('writingHistory', JSON.stringify(historyData));
+    renderHistory();
+    saveBtn.disabled = true;
+    wordCountInput.value = '';
+    totalSeconds = 0;
     updateTimer();
-  </script>
+  });
+
+  function renderHistory(filter = '') {
+    historyContainer.innerHTML = '';
+    const filtered = historyData.filter(item => item.session.toLowerCase().includes(filter.toLowerCase()));
+    if(filtered.length === 0) {
+      historyContainer.innerHTML = '<p>Nenhum histórico encontrado.</p>';
+      return;
+    }
+    filtered.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      div.innerHTML = `
+        <strong>${item.session}</strong> (${item.project})<br />
+        Palavras: ${item.words} — Tempo: ${formatTime(item.time)}<br />
+        <small>${item.date}</small>
+      `;
+      historyContainer.appendChild(div);
+    });
+  }
+
+  toggleHistoryBtn.addEventListener('click', () => {
+    historyVisible = !historyVisible;
+    if(historyVisible) {
+      historyContainer.style.display = 'block';
+      toggleHistoryBtn.textContent = 'Esconder Histórico';
+      filterHistoryInput.style.display = 'block';
+      renderHistory();
+    } else {
+      historyContainer.style.display = 'none';
+      toggleHistoryBtn.textContent = 'Mostrar Histórico';
+      filterHistoryInput.style.display = 'none';
+    }
+  });
+
+  filterHistoryInput.addEventListener('input', () => {
+    renderHistory(filterHistoryInput.value);
+  });
+
+  updateTimer();
+  renderHistory();
+</script>
 </body>
 </html>
+
